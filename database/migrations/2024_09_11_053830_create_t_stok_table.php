@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('t_stok', function (Blueprint $table) {
+        Schema::create('t_stoks', function (Blueprint $table) {
             $table->bigIncrements('stok_id'); // Menambahkan kolom stok_id
             $table->bigInteger('barang_id')->unsigned(); // Menambahkan kolom barang_id
             $table->bigInteger('user_id')->unsigned(); // Menambahkan kolom user_id
@@ -31,8 +31,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('t_stok', function (Blueprint $table) {
-            //
-        });
+        Schema::dropIfExists('t_stoks');
     }
 };
