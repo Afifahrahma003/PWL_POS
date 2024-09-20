@@ -13,5 +13,5 @@ class UserModel extends Model
     protected $primaryKey = 'user_id';
 
         // Kolom yang dapat diisi (mass assignable)
-        protected $fillable = ['level_id', 'username', 'nama'];
+        protected $fillable = ['level_id', 'username', 'nama', 'password'];
 }
