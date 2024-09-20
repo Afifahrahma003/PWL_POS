@@ -11,4 +11,7 @@ class UserModel extends Model
 
     protected $table = 'm_user';
     protected $primarykey = 'user_id';
+
+        // Kolom yang dapat diisi (mass assignable)
+        protected $fillable = ['level_id', 'username', 'nama'];
 }
