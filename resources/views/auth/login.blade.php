@@ -16,6 +16,21 @@
   <link rel="stylesheet" href="{{ asset('adminlte/plugins/sweetalert2-theme-bootstrap-4/bootstrap-4.min.css') }}">
   <!-- Theme style -->
   <link rel="stylesheet" href="{{ asset('adminlte/dist/css/adminlte.min.css') }}">
+
+  <style>
+    .login-page {
+      background-image: url('{{ asset('image/profile/fading-blue-background.jpg') }}'); /* Gunakan gambar background */
+      background-size: 2000px; /* Untuk menyesuaikan gambar dengan ukuran layar */
+      background-position: center; /* Agar gambar selalu di tengah */
+      background-repeat: no-repeat; /* Supaya gambar tidak diulang */
+    }
+  
+    .card {
+      background-color: rgba(255, 255, 255, 0.8); /* Membuat background card sedikit transparan */
+      border-radius: 10px; /* Membuat sudut-sudut card melengkung */
+    }
+  </style>
+  
 </head>
 <body class="hold-transition login-page">
 <div class="login-box">

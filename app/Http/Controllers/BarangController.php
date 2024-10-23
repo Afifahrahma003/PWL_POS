@@ -63,12 +63,12 @@ class BarangController extends Controller
     {
         if ($request->ajax() || $request->wantsJson()) {
             $rules = [
-                'kategori_id' => ['required', 'integer', 'exists:m_kategori,kategori_id'],
+                'kategori_id' => ['required', 'integer', 'exists:m_kategoris,kategori_id'],
                 'barang_kode' => [
                     'required',
                     'min:3',
                     'max:20',
-                    'unique:m_barang,barang_kode'
+                    'unique:m_barangs,barang_kode'
                 ],
                 'barang_nama' => ['required', 'string', 'max:100'],
                 'harga_beli' => ['required', 'numeric'],
@@ -90,23 +90,30 @@ class BarangController extends Controller
         }
         redirect('/');
     }
+
+    public function show_ajax(string $id)
+    {
+        $barang = BarangModel::with('kategori')->find($id);
+        return view('barang.show_ajax', ['barang' => $barang]);
+    }
+
     public function edit_ajax($id)
     {
         $barang = BarangModel::find($id);
-        $level = LevelModel::select('level_id', 'level_nama')->get();
-        return view('barang.edit_ajax', ['barang' => $barang, 'level' => $level]);
+        $kategori = KategoriModel::all(); // Ambil data kategori dari database
+        return view('barang.edit_ajax', compact('barang', 'kategori'));
     }
     public function update_ajax(Request $request, $id)
     {
         // cek apakah request dari ajax
         if ($request->ajax() || $request->wantsJson()) {
             $rules = [
-                'kategori_id' => ['required', 'integer', 'exists:m_kategori,kategori_id'],
+                'kategori_id' => ['required', 'integer', 'exists:m_kategoris,kategori_id'],
                 'barang_kode' => [
                     'required',
                     'min:3',
                     'max:20',
-                    'unique:m_barang,barang_kode, ' . $id . ',barang_id'
+                    'unique:m_barangs,barang_kode, ' . $id . ',barang_id'
                 ],
                 'barang_nama' => ['required', 'string', 'max:100'],
                 'harga_beli' => ['required', 'numeric'],
@@ -225,59 +232,60 @@ class BarangController extends Controller
             ->orderBy('kategori_id')
             ->with('kategori')
             ->get();
+
             // Load library PhpSpreadsheet
-    $spreadsheet = new \PhpOffice\PhpSpreadsheet\Spreadsheet();
-    $sheet = $spreadsheet->getActiveSheet(); // Ambil sheet yang aktif
+            $spreadsheet = new \PhpOffice\PhpSpreadsheet\Spreadsheet();
+            $sheet = $spreadsheet->getActiveSheet(); // Ambil sheet yang aktif
 
-    // Set header kolom
-    $sheet->setCellValue('A1', 'No');
-    $sheet->setCellValue('B1', 'Kode Barang');
-    $sheet->setCellValue('C1', 'Nama Barang');
-    $sheet->setCellValue('D1', 'Harga Beli');
-    $sheet->setCellValue('E1', 'Harga Jual');
-    $sheet->setCellValue('F1', 'Kategori');
-    $sheet->getStyle('A1:F1')->getFont()->setBold(true); // Bold header
-    $no = 1; // Nomor data dimulai dari 1
-    $baris = 2; // Baris data dimulai dari baris ke 2
+            // Set header kolom
+            $sheet->setCellValue('A1', 'No');
+            $sheet->setCellValue('B1', 'Kode Barang');
+            $sheet->setCellValue('C1', 'Nama Barang');
+            $sheet->setCellValue('D1', 'Harga Beli');
+            $sheet->setCellValue('E1', 'Harga Jual');
+            $sheet->setCellValue('F1', 'Kategori');
+            $sheet->getStyle('A1:F1')->getFont()->setBold(true); // Bold header
 
-    // Loop data barang dan masukkan ke dalam sheet
-    foreach ($barang as $key => $value) {
-        $sheet->setCellValue('A' . $baris, $no);
-        $sheet->setCellValue('B' . $baris, $value->barang_kode);
-        $sheet->setCellValue('C' . $baris, $value->barang_nama);
-        $sheet->setCellValue('D' . $baris, $value->harga_beli);
-        $sheet->setCellValue('E' . $baris, $value->harga_jual);
-        $sheet->setCellValue('F' . $baris, $value->kategori->kategori_nama); // Ambil nama kategori
-        $baris++;
-        $no++;
-    }
+            $no = 1; // Nomor data dimulai dari 1
+            $baris = 2; // Baris data dimulai dari baris ke 2
 
-    // Set auto size untuk kolom A sampai F
-    foreach (range('A', 'F') as $columnID) {
-        $sheet->getColumnDimension($columnID)->setAutoSize(true);
-    }
+            // Loop data barang dan masukkan ke dalam sheet
+            foreach ($barang as $key => $value) {
+                $sheet->setCellValue('A' . $baris, $no);
+                $sheet->setCellValue('B' . $baris, $value->barang_kode);
+                $sheet->setCellValue('C' . $baris, $value->barang_nama);
+                $sheet->setCellValue('D' . $baris, $value->harga_beli);
+                $sheet->setCellValue('E' . $baris, $value->harga_jual);
+                $sheet->setCellValue('F' . $baris, $value->kategori->kategori_nama); // Ambil nama kategori
+                $baris++;
+                $no++;
+            }
 
-    // Set judul sheet
-    $sheet->setTitle('Data Barang');
+            // Set auto size untuk kolom A sampai F
+            foreach (range('A', 'F') as $columnID) {
+                $sheet->getColumnDimension($columnID)->setAutoSize(true);
+            }
 
-    // Membuat writer untuk menulis file Excel
-    $writer = \PhpOffice\PhpSpreadsheet\IOFactory::createWriter($spreadsheet, 'Xlsx');
-    $filename = 'Data_Barang_' . date('Y-m-d_H-i-s') . '.xlsx';
+            // Set judul sheet
+            $sheet->setTitle('Data Barang');
 
-    // Set header untuk download file Excel
-    header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-    header('Content-Disposition: attachment;filename="' . $filename . '"');
-    header('Cache-Control: max-age=0');
-    header('Cache-Control: max-age=1'); // Bypass cache IE
-    header('Expires: Mon, 26 Jul 1997 05:00:00 GMT'); // Expired date in the past
-    header('Last-Modified: ' . gmdate('D, d M Y H:i:s') . ' GMT'); // Always modified
-    header('Cache-Control: cache, must-revalidate'); // HTTP/1.1
-    header('Pragma: public'); // HTTP/1.0
+            // Membuat writer untuk menulis file Excel
+            $writer = \PhpOffice\PhpSpreadsheet\IOFactory::createWriter($spreadsheet, 'Xlsx');
+            $filename = 'Data_Barang_' . date('Y-m-d_H-i-s') . '.xlsx';
 
-    // Simpan file ke output
-    $writer->save('php://output');
-    exit;
+            // Set header untuk download file Excel
+            header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+            header('Content-Disposition: attachment;filename="' . $filename . '"');
+            header('Cache-Control: max-age=0');
+            header('Cache-Control: max-age=1'); // Bypass cache IE
+            header('Expires: Mon, 26 Jul 1997 05:00:00 GMT'); // Expired date in the past
+            header('Last-Modified: ' . gmdate('D, d M Y H:i:s') . ' GMT'); // Always modified
+            header('Cache-Control: cache, must-revalidate'); // HTTP/1.1
+            header('Pragma: public'); // HTTP/1.0
 
+            // Simpan file ke output
+            $writer->save('php://output');
+            exit;
     }
 
     public function export_pdf()
