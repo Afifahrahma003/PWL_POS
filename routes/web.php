@@ -38,8 +38,16 @@ Route::post('register', [AuthController::class, 'store']);
 
 Route::match(['get', 'head'], '/', [WelcomeController::class, 'index'])->name('home')->middleware('auth');
 
+Route::middleware(['authorize:ADM,MNG,STF,BRH'])->group(function(){
+    Route::get('/profile', [ProfileController::class, 'index']);
+    Route::get('/profile/{id}/edit_ajax', [ProfileController::class, 'edit_ajax']);
+    Route::put('/profile/{id}/update_ajax', [ProfileController::class, 'update_ajax']);
+    Route::put('/profile/{id}/update_foto', [ProfileController::class, 'update_foto']);
+});
+
 Route::middleware(['auth'])->group(function () {
     // artinya semua route di dalam group ini harus login dulu
+
        
     Route::middleware(['authorize:ADM'])->group(function(){
         Route::group(['prefix' => 'level'], function() {
