@@ -23,7 +23,7 @@ class BarangController extends Controller
             'harga_beli' => 'required|integer',
             'harga_jual' => 'required|integer',
             'kategori_id' => 'required|integer',
-            'image' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048'
+            'image'
         ];
 
         $validator = Validator::make($request->all(), $rules);
@@ -58,7 +58,7 @@ class BarangController extends Controller
             'harga_beli' => 'required|integer',
             'harga_jual' => 'required|integer',
             'kategori_id' => 'required|integer',
-            'image' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048'
+            'image'
         ];
 
         $validator = Validator::make($request->all(), $rules);
